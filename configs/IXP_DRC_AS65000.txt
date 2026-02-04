@@ -1,0 +1,48 @@
+! IXP DRC - Central Peering Hub Configuration
+!
+hostname IXP_DRC
+!
+interface GigabitEthernet0/0
+ description Link to ARPTC
+ ip address 41.0.0.2 255.255.255.0
+!
+interface GigabitEthernet0/1
+ description Link to Orange
+ ip address 20.1.0.2 255.255.255.0
+!
+interface GigabitEthernet0/2
+ description Link to Vodacom
+ ip address 15.0.0.2 255.255.255.0
+!
+interface GigabitEthernet1/0
+ description Link to Airtel
+ ip address 120.0.0.2 255.255.255.0
+!
+interface GigabitEthernet1/1
+ description Link to Africell
+ ip address 40.0.0.2 255.255.255.0
+!
+! BGP Routing Logic
+router bgp 65000
+ bgp log-neighbor-changes
+ ! Peering with National Regulator (ARPTC)
+ neighbor 41.0.0.1 remote-as 37000
+ ! Peering with ISPs
+ neighbor 20.1.0.1 remote-as 37002
+ neighbor 15.0.0.1 remote-as 37001
+ neighbor 120.0.0.1 remote-as 37003
+ neighbor 40.0.0.1 remote-as 37004
+ ! 
+ address-family ipv4
+  neighbor 41.0.0.1 activate
+  neighbor 20.1.0.1 activate
+  neighbor 15.0.0.1 activate
+  neighbor 120.0.0.1 activate
+  neighbor 40.0.0.1 activate
+  ! Redistribute default route to all ISPs
+  redistribute static
+ exit-address-family
+!
+! Static route for the backbone
+ip route 0.0.0.0 0.0.0.0 41.0.0.1
+!

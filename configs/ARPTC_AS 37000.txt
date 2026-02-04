@@ -1,0 +1,31 @@
+! ARPTC - National Gateway Configuration
+!
+hostname ARPTC
+!
+interface GigabitEthernet0/0
+ description Link to IXP_DRC
+ ip address 41.0.0.1 255.255.255.0
+!
+interface GigabitEthernet0/1
+ description Link to Global Internet
+ ip address 70.0.0.1 255.255.255.0
+!
+! BGP Routing Logic
+router bgp 37000
+ bgp log-neighbor-changes
+ ! Neighbor peering
+ neighbor 41.0.0.2 remote-as 65000
+ neighbor 70.0.0.2 remote-as 6000
+ !
+ address-family ipv4
+  neighbor 41.0.0.2 activate
+  neighbor 70.0.0.2 activate
+  ! Crucial: Ensure the IXP knows how to reach the Internet
+  neighbor 41.0.0.2 next-hop-self
+  ! Announce internal networks to the world
+  network 41.0.0.0 mask 255.255.255.0
+ exit-address-family
+!
+! Static routes to prevent recursion issues in Packet Tracer
+ip route 0.0.0.0 0.0.0.0 70.0.0.2
+!
