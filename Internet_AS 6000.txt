@@ -1,0 +1,27 @@
+! Global Internet Simulator
+!
+hostname Internet
+!
+interface GigabitEthernet0/0
+ description Link to ARPTC (DRC Gateway)
+ ip address 70.0.0.2 255.255.255.0
+!
+! Simulating Google DNS 8.8.8.8
+interface Loopback0
+ ip address 8.8.8.8 255.255.255.255
+!
+! BGP Routing Logic
+router bgp 6000
+ bgp log-neighbor-changes
+ neighbor 70.0.0.1 remote-as 37000
+ !
+ address-family ipv4
+  neighbor 70.0.0.1 activate
+  ! Announce the simulated internet service
+  network 8.8.8.8 mask 255.255.255.255
+ exit-address-family
+!
+! THE FIX: Static route back to the DRC private network range
+! This ensures replies for 192.168.x.x are sent back to the ARPTC
+ip route 192.168.0.0 255.255.0.0 70.0.0.1
+!
